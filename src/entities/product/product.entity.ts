@@ -1,14 +1,9 @@
-import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { User } from '../user/user.entity';
-@Entity()
-export class Product {
-  @Column({
-    name: 'id',
-    nullable: false,
-  })
-  @PrimaryColumn('uuid')
-  id: string;
+import { BaseEntity } from '../base/base.entity';
 
+@Entity()
+export class Product extends BaseEntity {
   @Column({
     name: 'product_name',
     nullable: false,
@@ -44,20 +39,12 @@ export class Product {
   status: boolean;
 
   @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    name: 'created_at',
+    name: 'product_image',
+    type: 'varchar',
+    length: 255,
     nullable: true,
   })
-  createAt: Date | null;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    name: 'updated_at',
-    nullable: true,
-  })
-  updatedAt: Date | null;
+  productImage: string;
 
   @ManyToOne(() => User, (user) => user.products)
   user: User;

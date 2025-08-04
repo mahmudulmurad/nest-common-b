@@ -1,19 +1,14 @@
-import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Product } from '../product/product.entity';
 import { User } from '../user/user.entity';
+import { BaseEntity } from '../base/base.entity';
 
 @Entity()
-export class ProductReview {
-  @Column({
-    name: 'id',
-    nullable: false,
-  })
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class ProductReview extends BaseEntity {
   @Column({
     name: 'content',
     nullable: false,
+    type: 'longtext',
   })
   content: string;
 

@@ -34,26 +34,24 @@ export class ReviewService {
     productId: string,
     reviewDto: ReviewDto,
   ): Promise<ProductReview> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
+    const [user, product] = await Promise.all([
+      this.userRepository.findOne({ where: { id: userId } }),
+      this.productRepository.findOne({ where: { id: productId } }),
+    ]);
+
+    if (!user || !product) {
+      throw new NotFoundException(
+        !user ? 'User not found' : 'Product not found',
+      );
     }
 
-    const product = await this.productRepository.findOne({
-      where: { id: productId },
+    const review = this.reviewRepository.create({
+      id: uuidv4(),
+      content: reviewDto.content,
+      user,
+      product,
     });
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
 
-    const newReview = new ProductReview();
-    newReview.id = uuidv4();
-    newReview.content = reviewDto.content;
-    newReview.user = user;
-    newReview.product = product;
-
-    return await this.reviewRepository.save(newReview);
+    return this.reviewRepository.save(review);
   }
 }

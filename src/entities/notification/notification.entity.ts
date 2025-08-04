@@ -1,15 +1,9 @@
-import { Entity, Column, PrimaryColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from '../user/user.entity';
+import { BaseEntity } from '../base/base.entity';
 
 @Entity()
-export class Notification {
-  @Column({
-    name: 'id',
-    nullable: false,
-  })
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class Notification extends BaseEntity {
   @Column({
     nullable: false,
   })

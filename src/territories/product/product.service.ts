@@ -9,6 +9,8 @@ import { Product, User } from '../../entities';
 import { CreateProductDto } from '../../dto/create-product.dot';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateProductDto } from 'src/dto/update-product.dto';
+import { saveFileToDisk } from 'src/utils/file-upload';
+import { deleteFileFromDisk } from 'src/utils/delete-file';
 @Injectable()
 export class ProductService {
   constructor(
@@ -39,7 +41,11 @@ export class ProductService {
     return products;
   }
 
-  async create(productDto: CreateProductDto, userId: string): Promise<Product> {
+  async create(
+    productDto: CreateProductDto,
+    userId: string,
+    product_image: Express.Multer.File,
+  ): Promise<Product> {
     const { productName } = productDto;
     const isExist = await this.productRepository.findOne({
       where: { productName },
@@ -55,12 +61,23 @@ export class ProductService {
 
     const product = this.productRepository.create({ ...productDto, user });
     product.id = uuidv4();
+
+    if (product_image) {
+      const productImagePath = saveFileToDisk(
+        product_image,
+        'product',
+        'product',
+      );
+      product.productImage = productImagePath;
+    }
+
     return await this.productRepository.save(product);
   }
 
   async updateProduct(
     id: string,
     updateProductDto: UpdateProductDto,
+    product_image: Express.Multer.File,
   ): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
@@ -69,6 +86,22 @@ export class ProductService {
       throw new NotFoundException('product not found!!');
     }
     const updatedProduct = Object.assign(product, updateProductDto);
+    if (product_image) {
+      const fileDeleteStatus = deleteFileFromDisk(product.productImage);
+
+      if (!fileDeleteStatus.success) {
+        console.warn('Image deletion failed:', fileDeleteStatus.message);
+      } else {
+        console.log('Image removed:', fileDeleteStatus.path);
+        const productImagePath = saveFileToDisk(
+          product_image,
+          'product',
+          'product',
+        );
+        updatedProduct.productImage = productImagePath;
+      }
+    }
+
     return this.productRepository.save(updatedProduct);
   }
 

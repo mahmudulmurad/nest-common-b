@@ -6,12 +6,14 @@ import {
   Param,
   UseGuards,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { ReviewDto } from 'src/dto/review.dto';
 import { AuthGuard } from 'src/auth';
 import { ResponseService } from 'src/service/response.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CustomRequest } from 'src/interface/customRequest.interface';
 
 @ApiTags('PRODUCT-REVIEW')
 @ApiBearerAuth()
@@ -34,12 +36,13 @@ export class ReviewController {
     );
   }
 
-  @Post('/create-review/:userId/:productId')
+  @Post('/create-review/:productId')
   async signUp(
-    @Param('userId') userId: string,
+    @Req() request: CustomRequest,
     @Param('productId') productId: string,
     @Body() reviewDto: ReviewDto,
   ) {
+    const userId = request.user?.id;
     const review = await this.reviewService.createReview(
       userId,
       productId,

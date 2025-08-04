@@ -1,26 +1,12 @@
-import {
-  Entity,
-  Column,
-  VersionColumn,
-  Unique,
-  PrimaryColumn,
-  OneToMany,
-  OneToOne,
-} from 'typeorm';
+import { Entity, Column, Unique, OneToMany, OneToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Product } from '../product/product.entity';
 import { Notification } from '../notification/notification.entity';
+import { BaseEntity } from '../base/base.entity';
 
 @Unique(['username'])
 @Entity()
-export class User {
-  @Column({
-    name: 'id',
-    nullable: false,
-  })
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class User extends BaseEntity {
   @Column({
     name: 'username',
     nullable: false,
@@ -34,24 +20,13 @@ export class User {
   @Exclude({ toPlainOnly: true })
   password: string;
 
-  @VersionColumn()
-  version: number;
-
   @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    name: 'created_at',
+    name: 'profile_picture',
+    type: 'varchar',
+    length: 255,
     nullable: true,
   })
-  createAt: Date | null;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    name: 'updated_at',
-    nullable: true,
-  })
-  updatedAt: Date | null;
+  profilePicture: string;
 
   @OneToMany(() => Product, (product) => product.user)
   products: Product[];

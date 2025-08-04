@@ -1,29 +1,30 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsBoolean, IsOptional } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNumber, IsString, IsBoolean } from 'class-validator';
 
 export class UpdateProductDto {
-  @ApiProperty()
-  @IsOptional()
+  @ApiPropertyOptional()
   @IsString()
-  productName?: string;
+  productName: string;
 
-  @ApiProperty()
-  @IsOptional()
+  @ApiPropertyOptional()
   @IsNumber()
-  categoryId?: number;
+  categoryId: number;
 
-  @ApiProperty()
-  @IsOptional()
+  @ApiPropertyOptional()
   @IsString()
-  categoryName?: string;
+  categoryName: string;
 
-  @ApiProperty()
-  @IsOptional()
+  @ApiPropertyOptional()
   @IsNumber()
-  price?: number;
+  price: number;
 
-  @ApiProperty()
-  @IsOptional()
+  @ApiPropertyOptional()
   @IsBoolean()
-  status?: boolean;
+  status: boolean;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+  })
+  product_image: Express.Multer.File;
 }

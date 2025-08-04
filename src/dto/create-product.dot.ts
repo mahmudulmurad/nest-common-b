@@ -1,6 +1,6 @@
 // create-product.dto.ts
 import { IsNotEmpty, IsNumber, IsString, IsBoolean } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateProductDto {
   @ApiProperty()
@@ -26,5 +26,11 @@ export class CreateProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsBoolean()
-  status?: boolean;
+  status: boolean;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+  })
+  product_image: Express.Multer.File;
 }

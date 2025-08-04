@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -13,6 +14,8 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { UserUpdateDto } from 'src/dto/user-update.dto';
+import { saveFileToDisk } from 'src/utils/file-upload';
 
 @Injectable()
 export class UserService {
@@ -63,6 +66,32 @@ export class UserService {
       return { accessToken };
     } catch (error) {
       throw new InternalServerErrorException('Error during login');
+    }
+  }
+
+  async update(
+    profile_picture: Express.Multer.File,
+    dto: UserUpdateDto,
+    userId: string,
+  ): Promise<User> {
+    if (!userId) throw new BadRequestException('User ID missing');
+
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new NotFoundException('User not found');
+
+      if (profile_picture) {
+        const profilePath = saveFileToDisk(profile_picture, 'user', 'user');
+        user.profilePicture = profilePath;
+      }
+
+      if (dto.version) {
+        user.version = dto.version;
+      }
+
+      return this.userRepository.save(user);
+    } catch (error) {
+      throw new InternalServerErrorException('Error during updating profile');
     }
   }
 }
