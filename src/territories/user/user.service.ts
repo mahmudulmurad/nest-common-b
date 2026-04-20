@@ -15,7 +15,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { UserUpdateDto } from 'src/dto/user-update.dto';
-import { saveFileToDisk } from 'src/utils/file-upload';
 import { CustomFileTypeForS3 } from 'src/interface/customFileTypeForS3';
 import { S3Service } from 'src/custom-interceptor/s3FileService';
 
