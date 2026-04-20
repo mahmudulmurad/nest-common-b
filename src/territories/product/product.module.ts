@@ -6,6 +6,7 @@ import { Product, User } from '../../entities';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../../auth/secret';
 import { ResponseService } from 'src/service/response.service';
+import { S3Module } from 'src/custom-interceptor/s3Module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ResponseService } from 'src/service/response.service';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1h' },
     }),
+    S3Module,
   ],
   controllers: [ProductController],
   providers: [ProductService, ResponseService],

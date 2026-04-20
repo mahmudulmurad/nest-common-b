@@ -3,13 +3,11 @@ import {
   Post,
   Body,
   Patch,
-  UseInterceptors,
   UploadedFile,
   Req,
   UseGuards,
   Get,
   Res,
-  StreamableFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDto } from '../../dto/singup.dto';
@@ -17,13 +15,13 @@ import { LoginDto } from '../../dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UserUpdateDto } from 'src/dto/user-update.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadFileInterceptorMemory } from 'src/custom-interceptor/fileUpload.interceptor';
+import { UploadFileInterceptorS3 } from 'src/custom-interceptor/fileUpload.interceptor';
 import { CustomRequest } from 'src/interface/customRequest.interface';
 import { AuthGuard } from 'src/auth';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Request, Response } from 'express';
+import { CustomFileTypeForS3 } from 'src/interface/customFileTypeForS3';
 
 @ApiTags('USER')
 @Controller('users')
@@ -57,16 +55,38 @@ export class UserController {
     }
   }
 
+  //for storing file in running server
+  // @Patch('/update')
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({ type: UserUpdateDto })
+  // @UploadFileInterceptorMemory('profile_picture')
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard)
+  // async updateProfile(
+  //   @Body() dto: UserUpdateDto,
+  //   @UploadedFile()
+  //   profile_picture: Express.Multer.File,
+  //   @Req() request: CustomRequest,
+  // ) {
+  //   try {
+  //     const userId = request.user?.id;
+  //     return this.userService.update(profile_picture, dto, userId);
+  //   } catch (error) {
+  //     console.error('Error sending message to loggerService:', error);
+  //   }
+  // }
+
+  //for storing file in aws-s3
   @Patch('/update')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UserUpdateDto })
-  @UploadFileInterceptorMemory('profile_picture')
+  @UploadFileInterceptorS3('profile_picture', 'users')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   async updateProfile(
     @Body() dto: UserUpdateDto,
     @UploadedFile()
-    profile_picture: Express.Multer.File,
+    profile_picture: CustomFileTypeForS3,
     @Req() request: CustomRequest,
   ) {
     try {

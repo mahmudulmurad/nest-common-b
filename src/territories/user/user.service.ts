@@ -16,6 +16,8 @@ import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { UserUpdateDto } from 'src/dto/user-update.dto';
 import { saveFileToDisk } from 'src/utils/file-upload';
+import { CustomFileTypeForS3 } from 'src/interface/customFileTypeForS3';
+import { S3Service } from 'src/custom-interceptor/s3FileService';
 
 @Injectable()
 export class UserService {
@@ -23,6 +25,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly s3Service: S3Service,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<User> {
@@ -69,8 +72,37 @@ export class UserService {
     }
   }
 
+  //for storing file in running server
+  //   async update(
+  //     profile_picture: Express.Multer.File,
+  //     dto: UserUpdateDto,
+  //     userId: string,
+  //   ): Promise<User> {
+  //     if (!userId) throw new BadRequestException('User ID missing');
+
+  //     try {
+  //       const user = await this.userRepository.findOneBy({ id: userId });
+  //       if (!user) throw new NotFoundException('User not found');
+
+  //       if (profile_picture) {
+  //         const profilePath = saveFileToDisk(profile_picture, 'user', 'user');
+  //         user.profilePicture = profilePath;
+  //       }
+
+  //       if (dto.version) {
+  //         user.version = dto.version;
+  //       }
+
+  //       return this.userRepository.save(user);
+  //     } catch (error) {
+  //       throw new InternalServerErrorException('Error during updating profile');
+  //     }
+  //   }
+  // }
+
+  //for storing file in aws-s3
   async update(
-    profile_picture: Express.Multer.File,
+    profile_picture: CustomFileTypeForS3,
     dto: UserUpdateDto,
     userId: string,
   ): Promise<User> {
@@ -81,15 +113,24 @@ export class UserService {
       if (!user) throw new NotFoundException('User not found');
 
       if (profile_picture) {
-        const profilePath = saveFileToDisk(profile_picture, 'user', 'user');
-        user.profilePicture = profilePath;
+        if (user.profilePicture) {
+          await this.s3Service.deleteFile(user.profilePicture);
+        }
+        user.profilePicture = profile_picture.key;
       }
 
       if (dto.version) {
         user.version = dto.version;
       }
 
-      return this.userRepository.save(user);
+      const result = await this.userRepository.save(user);
+
+      if (result && result.profilePicture) {
+        result.profilePicture = await this.s3Service.getPresignedUrl(
+          result.profilePicture,
+        );
+      }
+      return result;
     } catch (error) {
       throw new InternalServerErrorException('Error during updating profile');
     }

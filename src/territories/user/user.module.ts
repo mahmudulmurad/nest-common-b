@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { jwtConstants } from '../../auth/secret';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { S3Module } from 'src/custom-interceptor/s3Module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1h' },
     }),
+    S3Module,
   ],
   controllers: [UserController],
   providers: [UserService],

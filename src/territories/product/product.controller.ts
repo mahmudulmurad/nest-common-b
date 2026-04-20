@@ -21,7 +21,11 @@ import { CustomRequest } from '../../interface/customRequest.interface';
 import { ResponseService } from 'src/service/response.service';
 import { ResponseDto } from 'src/dto/response/response.dto';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { UploadFileInterceptorMemory } from 'src/custom-interceptor/fileUpload.interceptor';
+import {
+  UploadFileInterceptorMemory,
+  UploadFileInterceptorS3,
+} from 'src/custom-interceptor/fileUpload.interceptor';
+import { CustomFileTypeForS3 } from 'src/interface/customFileTypeForS3';
 
 @ApiTags('PRODUCT')
 @ApiBearerAuth()
@@ -51,15 +55,57 @@ export class ProductController {
     return this.productService.findAllProductsOfUser(userId);
   }
 
+  //for storing file in running server
+  // @Post('create-product')
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({ type: CreateProductDto })
+  // @UploadFileInterceptorMemory('product_image')
+  // async createProduct(
+  //   @Req() request: CustomRequest,
+  //   @Body() product: CreateProductDto,
+  //   @UploadedFile()
+  //   product_image: Express.Multer.File,
+  // ): Promise<ResponseDto> {
+  //   const userId = request.user?.id;
+  //   const newProduct = this.productService.create(
+  //     product,
+  //     userId,
+  //     product_image,
+  //   );
+  //   return this.responseService.toDtoResponse(
+  //     HttpStatus.CREATED,
+  //     'Product Creation successful',
+  //     newProduct,
+  //   );
+  // }
+
+  // @Patch('update/:id')
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({ type: UpdateProductDto })
+  // @UploadFileInterceptorMemory('product_image')
+  // async updateProduct(
+  //   @Param('id') id: string,
+  //   @Body() updateProductDto: UpdateProductDto,
+  //   @UploadedFile()
+  //   product_image: Express.Multer.File,
+  // ): Promise<Product> {
+  //   return this.productService.updateProduct(
+  //     id,
+  //     updateProductDto,
+  //     product_image,
+  //   );
+  // }
+
+  //for storing file in aws-s3
   @Post('create-product')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateProductDto })
-  @UploadFileInterceptorMemory('product_image')
+  @UploadFileInterceptorS3('product_image', 'products')
   async createProduct(
     @Req() request: CustomRequest,
     @Body() product: CreateProductDto,
     @UploadedFile()
-    product_image: Express.Multer.File,
+    product_image: CustomFileTypeForS3,
   ): Promise<ResponseDto> {
     const userId = request.user?.id;
     const newProduct = this.productService.create(
@@ -77,12 +123,12 @@ export class ProductController {
   @Patch('update/:id')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdateProductDto })
-  @UploadFileInterceptorMemory('product_image')
+  @UploadFileInterceptorS3('product_image', 'products')
   async updateProduct(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFile()
-    product_image: Express.Multer.File,
+    product_image: CustomFileTypeForS3,
   ): Promise<Product> {
     return this.productService.updateProduct(
       id,

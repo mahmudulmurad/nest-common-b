@@ -25,7 +25,7 @@ export function saveFileToDisk(
   }
 
   const fullPath = path.join(uploadDir, filename);
-  fs.writeFileSync(fullPath, file.buffer);
+  fs.writeFileSync(fullPath, file.buffer as Uint8Array);
 
   return `uploads/${directory}/${filename}`;
 }
