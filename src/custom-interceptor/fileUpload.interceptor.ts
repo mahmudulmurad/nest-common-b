@@ -13,10 +13,6 @@ function getS3Client(): S3Client {
   if (!s3Instance) {
     s3Instance = new S3Client({
       region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY!,
-        secretAccessKey: process.env.AWS_SECRET_KEY!,
-      },
     });
   }
   return s3Instance;
