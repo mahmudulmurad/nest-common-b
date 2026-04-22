@@ -8,13 +8,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  app.setGlobalPrefix('server');
 
   const config = new DocumentBuilder()
     .addBearerAuth()
     .setTitle('Nest API Docs')
     .setDescription('API stories from @mahmudulmurad')
     .setVersion('1.0')
+    .addServer('/server')
     .addTag('san-Ti')
     .build();
 
