@@ -56,56 +56,15 @@ export class ProductController {
   }
 
   //for storing file in running server
-  // @Post('create-product')
-  // @ApiConsumes('multipart/form-data')
-  // @ApiBody({ type: CreateProductDto })
-  // @UploadFileInterceptorMemory('product_image')
-  // async createProduct(
-  //   @Req() request: CustomRequest,
-  //   @Body() product: CreateProductDto,
-  //   @UploadedFile()
-  //   product_image: Express.Multer.File,
-  // ): Promise<ResponseDto> {
-  //   const userId = request.user?.id;
-  //   const newProduct = this.productService.create(
-  //     product,
-  //     userId,
-  //     product_image,
-  //   );
-  //   return this.responseService.toDtoResponse(
-  //     HttpStatus.CREATED,
-  //     'Product Creation successful',
-  //     newProduct,
-  //   );
-  // }
-
-  // @Patch('update/:id')
-  // @ApiConsumes('multipart/form-data')
-  // @ApiBody({ type: UpdateProductDto })
-  // @UploadFileInterceptorMemory('product_image')
-  // async updateProduct(
-  //   @Param('id') id: string,
-  //   @Body() updateProductDto: UpdateProductDto,
-  //   @UploadedFile()
-  //   product_image: Express.Multer.File,
-  // ): Promise<Product> {
-  //   return this.productService.updateProduct(
-  //     id,
-  //     updateProductDto,
-  //     product_image,
-  //   );
-  // }
-
-  //for storing file in aws-s3
   @Post('create-product')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateProductDto })
-  @UploadFileInterceptorS3('product_image', 'products')
+  @UploadFileInterceptorMemory('product_image')
   async createProduct(
     @Req() request: CustomRequest,
     @Body() product: CreateProductDto,
     @UploadedFile()
-    product_image: CustomFileTypeForS3,
+    product_image: Express.Multer.File,
   ): Promise<ResponseDto> {
     const userId = request.user?.id;
     const newProduct = this.productService.create(
@@ -123,12 +82,12 @@ export class ProductController {
   @Patch('update/:id')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdateProductDto })
-  @UploadFileInterceptorS3('product_image', 'products')
+  @UploadFileInterceptorMemory('product_image')
   async updateProduct(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFile()
-    product_image: CustomFileTypeForS3,
+    product_image: Express.Multer.File,
   ): Promise<Product> {
     return this.productService.updateProduct(
       id,
@@ -146,5 +105,59 @@ export class ProductController {
   async batchDeleteProducts(@Body() data: { ids: string[] }): Promise<string> {
     const arrayOfId = data?.ids;
     return await this.productService.deleteProducts(arrayOfId);
+  }
+
+  //for storing file in aws-s3
+  @Post('create-product-s3')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateProductDto })
+  @UploadFileInterceptorS3('product_image', 'products')
+  async createProductS3(
+    @Req() request: CustomRequest,
+    @Body() product: CreateProductDto,
+    @UploadedFile()
+    product_image: CustomFileTypeForS3,
+  ): Promise<ResponseDto> {
+    const userId = request.user?.id;
+    const newProduct = this.productService.createS3(
+      product,
+      userId,
+      product_image,
+    );
+    return this.responseService.toDtoResponse(
+      HttpStatus.CREATED,
+      'Product Creation successful',
+      newProduct,
+    );
+  }
+
+  @Patch('update/:id/s3')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UpdateProductDto })
+  @UploadFileInterceptorS3('product_image', 'products')
+  async updateProductS3(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile()
+    product_image: CustomFileTypeForS3,
+  ): Promise<Product> {
+    return this.productService.updateProductS3(
+      id,
+      updateProductDto,
+      product_image,
+    );
+  }
+
+  @Delete('delete/:id/s3')
+  async deleteProductS3(@Param('id') id: string): Promise<string> {
+    return await this.productService.removeS3(id);
+  }
+
+  @Delete('batch-delete/s3')
+  async batchDeleteProductsS3(
+    @Body() data: { ids: string[] },
+  ): Promise<string> {
+    const arrayOfId = data?.ids;
+    return await this.productService.deleteProductsS3(arrayOfId);
   }
 }

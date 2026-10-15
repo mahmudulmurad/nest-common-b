@@ -4,7 +4,6 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import { Product, User } from '../../entities';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../../auth/secret';
 import { ResponseService } from 'src/service/response.service';
 import { S3Module } from 'src/custom-interceptor/s3Module';
 
@@ -12,7 +11,7 @@ import { S3Module } from 'src/custom-interceptor/s3Module';
   imports: [
     TypeOrmModule.forFeature([Product, User]),
     JwtModule.register({
-      secret: jwtConstants.secret,
+      secret: process.env.JWS_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
     S3Module,

@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { Notification, User } from '../../entities';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { jwtConstants } from '../../auth/secret';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { S3Module } from 'src/custom-interceptor/s3Module';
 
@@ -22,7 +21,7 @@ import { S3Module } from 'src/custom-interceptor/s3Module';
     ]),
     TypeOrmModule.forFeature([User, Notification]),
     JwtModule.register({
-      secret: jwtConstants.secret,
+      secret: process.env.JWS_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
     S3Module,

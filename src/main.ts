@@ -23,7 +23,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT, '0.0.0.0');
   const logger = new Logger('🔥');
   logger.log(`V8 is running in port:${process.env.PORT} 🔥🚀🚀🚀🔥`);
 }

@@ -39,7 +39,7 @@ export function deleteFileFromDisk(relativePath: string): DeleteFileStatus {
   } catch (error) {
     return {
       success: false,
-      message: `Failed to delete file: ${error.message}`,
+      message: `Failed to delete file`,
       path: relativePath,
     };
   }
