@@ -14,7 +14,7 @@ async function bootstrap() {
     .setTitle('Nest API Docs')
     .setDescription('API stories from @mahmudulmurad')
     .setVersion('1.0')
-    .addServer('/server')
+    // .addServer('/server')
     .addTag('san-Ti')
     .build();
 

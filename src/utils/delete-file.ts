@@ -31,7 +31,7 @@ export function deleteFileFromDisk(relativePath: string): DeleteFileStatus {
       };
     } else {
       return {
-        success: false,
+        success: true,
         message: 'File does not exist',
         path: relativePath,
       };
